@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: election-example
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: election-example
+  template:
+    metadata:
+      labels:
+        app: election-example
+    spec:
+      serviceAccountName: election-example
+      containers:
+      - name: test-container
+        image: pstauffer/curl:v1.0.3
+        command: ["sh", "-c"]
+        args:
+          - while true; do
+            echo -en '\n';
+            curl -s http://localhost:4040;
+            sleep 10;
+            done;
+        env:
+        - name: MY_POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        resources:
+          limits:
+            memory: "64Mi"
+            cpu: "100m"
+      - name: elector-sidecar
+        image: kkosmrli/leader-elector:0.3.0
+        imagePullPolicy: Always
+        resources:
+          limits:
+            memory: "64Mi"
+            cpu: "100m"
+        ports:
+        - containerPort: 4040
+        args:
+          - "--election=example-election"
+          - "--namespace=default"
+          - "--locktype=configmaps"
+          - "--port=4040"

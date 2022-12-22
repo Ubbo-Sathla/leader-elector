@@ -1,0 +1,35 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  creationTimestamp: null
+  name: election-example
+  namespace: kube-system
+spec:
+  containers:
+    - args:
+        - "--election=example-election"
+        - "--namespace=kube-system"
+        - "--locktype=configmaps"
+        - "--port=4040"
+      env:
+        - name: address
+          value: 10.240.19.252
+      image: kkosmrli/leader-elector:0.3.0
+      imagePullPolicy: IfNotPresent
+      name: election-example
+      resources: {}
+      securityContext:
+        capabilities:
+          add:
+            - NET_ADMIN
+            - NET_RAW
+            - SYS_TIME
+      volumeMounts:
+        - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+          name: sa
+  hostNetwork: true
+  volumes:
+    - hostPath:
+        path: /opt/election-example
+      name: sa
+status: {}
