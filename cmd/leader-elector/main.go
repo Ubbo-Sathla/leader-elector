@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"regexp"
 	"syscall"
 	"time"
 
@@ -80,8 +81,14 @@ func main() {
 					klog.Fatal(err)
 				}
 				for _, link := range links {
+
 					check := false
 					fmt.Printf("%#v\n", link.Attrs().Name)
+					reg := regexp.MustCompile(`^eth.+|^ens.+|^bond.+|^br0`)
+					if !reg.MatchString(link.Attrs().Name) {
+						fmt.Println("not match", link.Attrs().Name)
+						continue
+					}
 					address, err := netlink.AddrList(link, netlink.FAMILY_V4)
 					if err != nil {
 
