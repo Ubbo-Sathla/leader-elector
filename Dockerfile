@@ -1,7 +1,7 @@
 ARG ARCH=amd64
 
 # Build stage
-FROM golang:1.16-alpine3.13 AS builder
+FROM golang:1.19.4-alpine3.17 AS builder
 WORKDIR /src
 ADD . /src
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=${ARCH} go get github.com/alexflint/go-arg
