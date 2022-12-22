@@ -123,9 +123,11 @@ func main() {
 				}
 				for _, link := range links {
 					err = netlink.AddrDel(link, vip)
+					fmt.Println(err)
 				}
 
 			}
+			fmt.Println("check ip")
 			time.Sleep(5 * time.Second)
 		}
 	}()
