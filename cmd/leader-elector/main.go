@@ -109,6 +109,15 @@ func main() {
 						}
 					}
 				}
+			} else {
+				links, err := netlink.LinkList()
+				if err != nil {
+					klog.Fatal(err)
+				}
+				for _, link := range links {
+					err = netlink.AddrDel(link, vip)
+				}
+
 			}
 			time.Sleep(5 * time.Second)
 		}
