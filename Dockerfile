@@ -2,9 +2,11 @@ ARG ARCH=amd64
 
 # Build stage
 FROM golang:1.19.4-alpine3.17 AS builder
+ENV GO111MODULE=on
+ENV GOPROXY=https://goproxy.cn
 WORKDIR /src
 ADD . /src
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=${ARCH} go get github.com/alexflint/go-arg
+RUN go mod tidy
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=${ARCH} go build -ldflags='-s -w -extldflags "-static"' -o elector cmd/leader-elector/main.go
 
 FROM gcr.io/distroless/static:nonroot-${ARCH}
