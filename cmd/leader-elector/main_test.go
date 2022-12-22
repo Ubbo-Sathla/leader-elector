@@ -12,13 +12,14 @@ func TestName(t *testing.T) {
 
 	}
 	for _, link := range links {
-		fmt.Println(link.Attrs().Name)
+		t.Log(link.Attrs().Name)
 		address, err := netlink.AddrList(link, 4)
 		if err != nil {
 
 		}
 		for _, addr := range address {
 			fmt.Println(addr)
+			t.Log(addr)
 		}
 	}
 }
