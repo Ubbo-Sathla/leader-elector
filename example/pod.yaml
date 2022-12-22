@@ -13,7 +13,7 @@ spec:
         - "--port=4040"
       env:
         - name: address
-          value: 10.240.19.252
+          value: 10.240.19.252/32
       image: kkosmrli/leader-elector:0.3.0
       imagePullPolicy: IfNotPresent
       name: election-example
