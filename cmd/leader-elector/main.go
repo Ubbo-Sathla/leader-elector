@@ -78,7 +78,7 @@ func main() {
 				}
 				for _, link := range links {
 					fmt.Println(link.Attrs().Name)
-					address, err := netlink.AddrList(link, syscall.IPPROTO_IPV4)
+					address, err := netlink.AddrList(link, netlink.FAMILY_V4)
 					if err != nil {
 
 					}
