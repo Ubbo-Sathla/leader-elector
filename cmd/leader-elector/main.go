@@ -82,37 +82,49 @@ func main() {
 				}
 				for _, link := range links {
 
-					check := false
-					fmt.Printf("%#v\n", link.Attrs().Name)
 					reg := regexp.MustCompile(`^eth.+|^ens.+|^bond.+|^br0`)
 					if !reg.MatchString(link.Attrs().Name) {
-						fmt.Println("not match", link.Attrs().Name)
+						fmt.Println("not match: ", link.Attrs().Name)
 						continue
 					}
 					address, err := netlink.AddrList(link, netlink.FAMILY_V4)
 					if err != nil {
 
 					}
-					fmt.Println(address)
+					klog.Infoln(address)
 
+					// 判断网卡是否正确 true 为 需要配置IP的网卡
+					check := false
+					// 判断IP是否已经配置 true 为已经配置
+					configTag := false
 					for _, addr := range address {
 						ipStr := os.Getenv("IP")
 						ip := net.ParseIP(ipStr)
 						if addr.IP.Equal(ip) {
 							check = true
 						}
+						if addr.IP.Equal(vip.IP) {
+							configTag = true
+						}
 					}
 
 					if check {
-						fmt.Println("the same")
-						err = netlink.AddrAdd(link, vip)
-						if err != nil {
-							fmt.Println(err)
+						// 如果没有配置IP 则需要配置
+						if !configTag {
+							err = netlink.AddrAdd(link, vip)
+							if err != nil {
+								klog.Errorf("config ip err: ", err)
+							} else {
+								klog.Infof("config ip %s on %s", vip.String(), link.Attrs().Name)
+							}
 						}
 					} else {
-						err = netlink.AddrDel(link, vip)
-						if err != nil {
-							fmt.Println(err)
+						// 如果配置了IP 则需要删除
+						if configTag {
+							err = netlink.AddrDel(link, vip)
+							if err != nil {
+								klog.Errorf("delete ip err: ", err)
+							}
 						}
 					}
 				}
@@ -122,12 +134,18 @@ func main() {
 					klog.Fatal(err)
 				}
 				for _, link := range links {
-					err = netlink.AddrDel(link, vip)
-					fmt.Println(err)
+					address, err := netlink.AddrList(link, netlink.FAMILY_V4)
+					for _, addr := range address {
+						if addr.IP.Equal(vip.IP) {
+							err = netlink.AddrDel(link, vip)
+							if err != nil {
+								klog.Errorf("delete ip err: ", err)
+							}
+						}
+					}
 				}
-
 			}
-			fmt.Println("check ip")
+			klog.Infoln("check ip")
 			time.Sleep(5 * time.Second)
 		}
 	}()
