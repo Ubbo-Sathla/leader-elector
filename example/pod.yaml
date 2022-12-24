@@ -2,21 +2,23 @@ apiVersion: v1
 kind: Pod
 metadata:
   creationTimestamp: null
-  name: election-example
+  name: mysql-vip
   namespace: kube-system
 spec:
   containers:
     - args:
-        - "--election=example-election"
+        - "--election=mysql-vip"
         - "--namespace=kube-system"
         - "--locktype=configmaps"
         - "--port=4040"
       env:
         - name: address
-          value: 10.240.19.252/32
-      image: kkosmrli/leader-elector:0.3.0
+          value: 192.168.19.252/32
+        - name: IP
+          value: 10.240.19.130
+      image: harbor.com/test/election-vip:0.6
       imagePullPolicy: IfNotPresent
-      name: election-example
+      name: mysql-vip
       resources: {}
       securityContext:
         capabilities:
@@ -30,6 +32,6 @@ spec:
   hostNetwork: true
   volumes:
     - hostPath:
-        path: /opt/election-example
+        path: /opt/mysql-vip
       name: sa
 status: {}
