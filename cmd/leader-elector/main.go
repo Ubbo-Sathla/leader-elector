@@ -83,12 +83,12 @@ func main() {
 
 					reg := regexp.MustCompile(`^eth.+|^ens.+|^bond.+|^br0`)
 					if !reg.MatchString(link.Attrs().Name) {
-						klog.Infoln("not match: ", link.Attrs().Name)
+						//klog.Infoln("not match: ", link.Attrs().Name)
 						continue
 					}
 					address, err := netlink.AddrList(link, netlink.FAMILY_V4)
 					if err != nil {
-
+						klog.Errorf("get %s ip address err: %s", link.Attrs().Name, err)
 					}
 					klog.Infoln(link.Attrs().Name, address)
 
