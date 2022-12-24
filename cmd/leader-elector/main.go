@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"net"
 	"net/http"
 	"os"
@@ -84,14 +83,14 @@ func main() {
 
 					reg := regexp.MustCompile(`^eth.+|^ens.+|^bond.+|^br0`)
 					if !reg.MatchString(link.Attrs().Name) {
-						fmt.Println("not match: ", link.Attrs().Name)
+						klog.Infoln("not match: ", link.Attrs().Name)
 						continue
 					}
 					address, err := netlink.AddrList(link, netlink.FAMILY_V4)
 					if err != nil {
 
 					}
-					klog.Infoln(address)
+					klog.Infoln(link.Attrs().Name, address)
 
 					// 判断网卡是否正确 true 为 需要配置IP的网卡
 					check := false
