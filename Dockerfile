@@ -1,7 +1,7 @@
 ARG ARCH=amd64
 
 # Build stage
-FROM golang:1.19.4-alpine3.17 AS builder
+FROM golang:1.21-alpine3.17 AS builder
 ENV GO111MODULE=on
 ENV GOPROXY=https://goproxy.cn
 WORKDIR /src
