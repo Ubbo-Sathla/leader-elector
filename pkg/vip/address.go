@@ -3,7 +3,6 @@ package vip
 import (
 	"github.com/pkg/errors"
 	"github.com/vishvananda/netlink"
-	"golang.org/x/sys/unix"
 )
 
 // Network is an interface that enable managing operations for a given IP
@@ -12,6 +11,7 @@ type Network interface {
 	DeleteIP() error
 	IsSet() (bool, error)
 	Interface() string
+	IsMaster() bool
 }
 
 // network - This allows network configuration
@@ -85,35 +85,39 @@ func (configurator *network) AddIP() error {
 	return nil
 }
 
-func NewConfig(address string, iface string, subnet string, isDDNS bool, tableID int) (Network, error) {
-	result := &network{}
+// IsMaster - Check to see if VIP is set
+func (configurator *network) IsMaster() (result bool) {
+	return configurator.link.Attrs().MasterIndex == 0
+}
 
-	link, err := netlink.LinkByName(iface)
+func NewConfig(address string, slave string, master string) (Network, error) {
+	result := &network{}
+	var err error
+	var link netlink.Link
+
+	result.address, err = netlink.ParseAddr(address)
 	if err != nil {
-		return result, errors.Wrapf(err, "could not get link for interface '%s'", iface)
+		return result, errors.Wrapf(err, "could not parse address '%s'", address)
+	}
+
+	link, err = netlink.LinkByName(slave)
+	if err != nil {
+		return result, errors.Wrapf(err, "could not get link for interface '%s'", slave)
 	}
 
 	result.link = link
 
-	if IsIP(address) {
-		// Check if the subnet needs overriding
-		if subnet != "" {
-			result.address, err = netlink.ParseAddr(address + subnet)
-			if err != nil {
-				return result, errors.Wrapf(err, "could not parse address '%s'", address)
-			}
-		} else {
-			result.address, err = netlinkParse(address)
-			if err != nil {
-				return result, errors.Wrapf(err, "could not parse address '%s'", address)
-			}
+	result.DeleteIP()
+
+	if !result.IsMaster() {
+		link, err = netlink.LinkByName(master)
+		if err != nil {
+			return result, errors.Wrapf(err, "could not get link for interface '%s'", slave)
 		}
-		// Ensure we don't have a global address on loopback
-		if iface == "lo" {
-			result.address.Scope = unix.RT_SCOPE_HOST
-		}
-		return result, nil
+		result.link = link
+
 	}
+	result.DeleteIP()
 
 	return result, err
 }

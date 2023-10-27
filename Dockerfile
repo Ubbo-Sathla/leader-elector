@@ -7,7 +7,7 @@ ENV GOPROXY=https://goproxy.cn
 WORKDIR /src
 ADD . /src
 RUN go mod tidy
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=${ARCH} go build -ldflags='-s -w -extldflags "-static"' -o elector cmd/leader-elector/main.go
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=${ARCH} go build -ldflags='-s -w -extldflags "-static"' -o elector cmd/kubevip/main.go
 
 FROM gcr.io/distroless/static:nonroot-${ARCH}
 USER root:root

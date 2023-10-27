@@ -1,0 +1,45 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  creationTimestamp: null
+  name: cloud-vip
+  namespace: kube-system
+spec:
+  containers:
+    - args:
+        - --cafile
+        - /etc/kubernetes/pki/etcd/ca.crt
+        - --clientcertfile
+        - /etc/kubernetes/pki/etcd/peer.crt
+        - --clientkeyfile
+        - /etc/kubernetes/pki/etcd/peer.key
+        - --endpoints https://10.119.1.19:2379
+        - https://127.0.0.1:2379
+        - --address 192.168.1.1/24
+        - --nicslave
+        - bond4
+        - --nicmaster
+        - br0
+        - --leaseduration
+        - 5
+        - --leasename
+        - cloudvip
+      image: harbor.com/test/election-vip:0.6
+      imagePullPolicy: IfNotPresent
+      name: cloud-vip
+      resources: {}
+      securityContext:
+        capabilities:
+          add:
+            - NET_ADMIN
+            - NET_RAW
+            - SYS_TIME
+      volumeMounts:
+        - mountPath: /etc/kubernetes/pki/etcd
+          name: cert
+  hostNetwork: true
+  volumes:
+    - hostPath:
+        path: /etc/kubernetes/pki/etcd
+      name: cert
+status: {}

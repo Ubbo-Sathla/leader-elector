@@ -52,9 +52,6 @@ type Config struct {
 	// Etcd doesn't support load balancer mode (EnableLoadBalancer=true) or any other feature that depends on the kube-api server.
 	LeaderElectionType string `yaml:"leaderElectionType"`
 
-	// Etcd defines all the settings for the etcd client.
-	Etcd Etcd
-
 	// AddPeersAsBackends, this will automatically add RAFT peers as backends to a loadbalancer
 	AddPeersAsBackends bool `yaml:"addPeersAsBackends"`
 
