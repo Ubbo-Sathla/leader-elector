@@ -7,24 +7,17 @@ metadata:
 spec:
   containers:
     - args:
-        - --cafile
-        - /etc/kubernetes/pki/etcd/ca.crt
-        - --clientcertfile
-        - /etc/kubernetes/pki/etcd/peer.crt
-        - --clientkeyfile
-        - /etc/kubernetes/pki/etcd/peer.key
-        - --endpoints https://10.119.1.19:2379
-        - https://127.0.0.1:2379
-        - --address 192.168.1.1/24
-        - --nicslave
-        - bond4
-        - --nicmaster
-        - br0
-        - --leaseduration
-        - 5
-        - --leasename
-        - cloudvip
-      image: harbor.com/test/election-vip:0.6
+        - "--cafile=/etc/kubernetes/pki/etcd/ca.crt"
+        - "--clientcertfile=/etc/kubernetes/pki/etcd/peer.crt"
+        - "--clientkeyfile=/etc/kubernetes/pki/etcd/peer.key"
+        - "--address=172.16.222.100/24"
+        - "--nicslave=bond4"
+        - "--nicmaster=br0"
+        - "--leaseduration=5"
+        - "--leasename=cloudvip"
+        - "--endpoints"
+        - "https://127.0.0.1:2379"
+      image: 843592242/election-vip:v0.2
       imagePullPolicy: IfNotPresent
       name: cloud-vip
       resources: {}
@@ -36,10 +29,10 @@ spec:
             - SYS_TIME
       volumeMounts:
         - mountPath: /etc/kubernetes/pki/etcd
-          name: cert
+          name: etcd-certs
   hostNetwork: true
   volumes:
     - hostPath:
         path: /etc/kubernetes/pki/etcd
-      name: cert
+      name: etcd-certs
 status: {}
